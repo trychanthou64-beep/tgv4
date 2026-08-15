@@ -2653,7 +2653,31 @@ async def post_init(application: Application) -> None:
         logging.error(f"Error setting bot commands: {e}")
 
 # ----------------- MAIN RUNNER -----------------
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(b"Bot is running OK")
+    def log_message(self, format, *args):
+        return
+
+def start_health_check_server():
+    port = int(os.environ.get("PORT", 8080))
+    try:
+        server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+        logging.info(f"Health check HTTP server listening on port {port}")
+        server.serve_forever()
+    except Exception as e:
+        logging.error(f"Error starting health check server: {e}")
+
 def main():
+    if os.environ.get("PORT"):
+        threading.Thread(target=start_health_check_server, daemon=True).start()
+        
     init_db()
     
     # Use configuration-defined token
