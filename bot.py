@@ -4,6 +4,7 @@ import sys
 import os
 import json
 import pandas as pd
+import asyncio
 from datetime import datetime, timezone, timedelta
 
 # Timezone for Phnom Penh, Cambodia (UTC+7)
@@ -2643,6 +2644,90 @@ async def handle_document_upload(update: Update, context: ContextTypes.DEFAULT_T
         await status_msg.edit_text("❌ មានបញ្ហាក្នុងការអាន ឬរក្សាទុកឯកសារ Excel របស់អ្នក។")
 
 
+async def send_auto_backup(bot, reason=""):
+    """
+    Sends an automatic backup copy of bot_data.db to all ADMIN_IDS via Telegram.
+    """
+    try:
+        db_path = os.path.join(BASE_DIR, 'bot_data.db')
+        if not os.path.exists(db_path):
+            return
+            
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT count(*) FROM accounts")
+        acc_count = cursor.fetchone()[0]
+        conn.close()
+
+        timestamp = get_phnom_penh_time_str()
+        caption = (
+            f"📦 <b>[AUTO BACKUP] ទិន្នន័យបម្រុងទុកស្វ័យប្រវត្តិ</b>\n"
+            f"🕒 ពេលវេលា: <code>{timestamp}</code>\n"
+            f"📊 ចំនួនគណនីសរុប: <b>{acc_count}</b> Accounts\n"
+        )
+        if reason:
+            caption += f"📝 មូលហេតុ: {reason}\n"
+        caption += "\n💡 <i>រក្សាទុកឯកសារ .db នេះ! ប្រសិនបើ Server restart ហើយបាត់ទិន្នន័យ អ្នកគ្រាន់តែផ្ញើឯកសារនេះចូល Bot វិញ រួចចុច Restore។</i>"
+
+        for admin_id in ADMIN_IDS:
+            try:
+                with open(db_path, 'rb') as db_file:
+                    await bot.send_document(
+                        chat_id=admin_id,
+                        document=db_file,
+                        filename=f"bot_data_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db",
+                        caption=caption,
+                        parse_mode="HTML"
+                    )
+            except Exception as e:
+                logging.error(f"Error sending auto backup to admin {admin_id}: {e}")
+    except Exception as e:
+        logging.error(f"Error in send_auto_backup: {e}")
+
+async def periodic_auto_backup_loop(bot):
+    """
+    Periodic task that runs on startup and every 6 hours to backup database and notify admin.
+    """
+    await asyncio.sleep(5)  # Short delay on startup
+    
+    # Boot notification & initial check
+    try:
+        db_path = os.path.join(BASE_DIR, 'bot_data.db')
+        acc_count = 0
+        if os.path.exists(db_path):
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
+            cursor.execute("SELECT count(*) FROM accounts")
+            acc_count = cursor.fetchone()[0]
+            conn.close()
+            
+        if acc_count == 0:
+            alert_msg = (
+                "⚠️ <b>[ALERT] Bot ត្រូវបាន Restart លើ Server ប៉ុន្តែ Database ទទេ (0 Accounts)!</b>\n\n"
+                "💡 <b>របៀប Restore យកទិន្នន័យមកវិញ៖</b>\n"
+                "1. ផ្ញើឯកសារ <code>bot_data.db</code> (Backup ចាស់) ចូលមកក្នុង Bot នេះ\n"
+                "2. ឬចូល <code>🛠️ Admin Panel</code> ➡️ <code>📤 ស្តារឡើងវិញ (Restore)</code>\n"
+                "ទិន្នន័យទាំងអស់នឹងត្រឡប់មកវិញភ្លាមៗ!"
+            )
+            for admin_id in ADMIN_IDS:
+                try:
+                    await bot.send_message(chat_id=admin_id, text=alert_msg, parse_mode="HTML")
+                except Exception as e:
+                    logging.error(f"Error sending boot alert to admin {admin_id}: {e}")
+        else:
+            # Initial auto backup on boot if accounts exist
+            await send_auto_backup(bot, reason="Bot ត្រូវបាន Start / Restart ឡើងវិញ")
+    except Exception as e:
+        logging.error(f"Error in initial boot check: {e}")
+
+    # Loop every 6 hours
+    while True:
+        await asyncio.sleep(6 * 3600)
+        try:
+            await send_auto_backup(bot, reason="តាមកាលវិភាគ 6 ម៉ោងម្តង")
+        except Exception as e:
+            logging.error(f"Error in periodic_auto_backup_loop: {e}")
+
 async def post_init(application: Application) -> None:
     try:
         await application.bot.set_my_commands([
@@ -2651,6 +2736,9 @@ async def post_init(application: Application) -> None:
         logging.info("Successfully set bot commands.")
     except Exception as e:
         logging.error(f"Error setting bot commands: {e}")
+        
+    # Start periodic auto-backup background task
+    asyncio.create_task(periodic_auto_backup_loop(application.bot))
 
 # ----------------- MAIN RUNNER -----------------
 import threading

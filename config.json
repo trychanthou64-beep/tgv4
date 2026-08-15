@@ -11,6 +11,8 @@
     "SB_PK_KH",
     "SB_TH",
     "SB_TH_KH",
+    "SB$_CH",
+    "SB$_V",
     "Ball_CH",
     "Ball_V",
     "Ball_KL",
@@ -31,6 +33,8 @@
     "F88_BK_KH",
     "F88_MB",
     "F88_MB_KH",
+    "F88$",
+    "F88$_CH",
     "Makav_CH",
     "Makav",
     "Makav_V",
@@ -45,6 +49,9 @@
     "M99_PK_KH",
     "M99_TH",
     "M99_TH_KH",
+    "M99$",
+    "M99$_CH",
+    "M99 CH Kh",
     "Wa855_CH",
     "Wa855_CH_KH",
     "Wa855",
@@ -53,6 +60,9 @@
     "Wa855_PK_KH",
     "W855_TH",
     "W855_TH_KH",
+    "Wa855$",
+    "Wa855$_CH",
+    "Wa855CH_KH",
     "Betwos_CH",
     "Betwos",
     "Betwos_V",
@@ -67,12 +77,12 @@
     "Joker_KL",
     "Joker_TH",
     "Joker_BK",
-    "CF388_KH",
-    "CF388_V_KH",
-    "CF388_PK_KH",
-    "CF388_KL_KH",
-    "CF388_TH_KH",
-    "CF388_CH_KH"
+    "CK999_CH",
+    "CK999_KH",
+    "CK999",
+    "CK999_V",
+    "CK999_PK",
+    "CK999_TH"
   ],
   "MAIN_MENUS": {
     "SB": [
@@ -85,7 +95,9 @@
       "SB_PK",
       "SB_PK_KH",
       "SB_TH",
-      "SB_TH_KH"
+      "SB_TH_KH",
+      "SB$_CH",
+      "SB$_V"
     ],
     "Ball": [
       "Ball_CH",
@@ -109,7 +121,9 @@
       "F88_BK",
       "F88_BK_KH",
       "F88_MB",
-      "F88_MB_KH"
+      "F88_MB_KH",
+      "F88$",
+      "F88$_CH"
     ],
     "Makav": [
       "Makav_CH",
@@ -119,14 +133,6 @@
       "Makav_PK",
       "Makav_TH"
     ],
-    "CF388": [
-      "CF388_KH",
-      "CF388_V_KH",
-      "CF388_PK_KH",
-      "CF388_KL_KH",
-      "CF388_TH_KH",
-      "CF388_CH_KH"
-    ],
     "M99": [
       "M99_CH",
       "M99_CH_KH",
@@ -135,7 +141,10 @@
       "M99_PK",
       "M99_PK_KH",
       "M99_TH",
-      "M99_TH_KH"
+      "M99_TH_KH",
+      "M99$",
+      "M99$_CH",
+      "M99 CH Kh"
     ],
     "Wa855": [
       "Wa855_CH",
@@ -145,7 +154,10 @@
       "Wa855_PK",
       "Wa855_PK_KH",
       "W855_TH",
-      "W855_TH_KH"
+      "W855_TH_KH",
+      "Wa855$",
+      "Wa855$_CH",
+      "Wa855CH_KH"
     ],
     "Betwos": [
       "Betwos_CH",
@@ -164,6 +176,14 @@
       "Joker_KL",
       "Joker_TH",
       "Joker_BK"
+    ],
+    "CK999": [
+      "CK999_CH",
+      "CK999_KH",
+      "CK999",
+      "CK999_V",
+      "CK999_PK",
+      "CK999_TH"
     ]
   },
   "ADMIN_IDS": [
